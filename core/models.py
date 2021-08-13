@@ -1,0 +1,111 @@
+from django.db import models
+from django.utils.text import slugify
+from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
+
+class UserManager(BaseUserManager):
+    def create_user(self, email, firstName, password = None):
+        if not email:
+            raise ValueError("Users must have an email address.")
+
+        user = self.model(
+            email = self.normalize_email(email),
+            firstName = firstName
+        )
+
+        user.set_password(password)
+        user.save(using = self._db)
+        return user
+
+    def create_superuser(self, email, firstName, password):
+        user = self.create_user(
+            email = self.normalize_email(email),
+            firstName = firstName,
+            password = password
+        )
+
+        user.superuser = True
+        user.save(using = self._db)
+        return user
+
+class User(AbstractBaseUser):
+    email = models.EmailField(max_length = 200, unique = True)
+    firstName = models.CharField(max_length = 100)
+    lastName = models.CharField(max_length = 100, blank = True)
+    dateJoined = models.DateTimeField(verbose_name = "Date of Joining", auto_now_add = True)
+    dateLastLogin = models.DateTimeField(verbose_name = "Date of Last Login", auto_now = True)
+    active = models.BooleanField(default = True)
+    isSuperuser = models.BooleanField(default = False)
+    isAdmin = models.BooleanField(default = False)
+
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = ["firstName"]
+
+    objects = UserManager()
+
+    class Meta:
+        db_table = "users"
+
+    @property
+    def is_staff(self):
+        return self.isSuperuser
+
+    @property
+    def isAuthenticated(self):
+        return self.is_authenticated
+
+    @property
+    def isAnonymous(self):
+        return self.is_anonymous
+
+    def __str__(self):
+        return f"{self.email} | {self.getName()}"
+
+    def has_perm(self, perm, obj = None):
+        return self.isSuperuser
+
+    def has_module_perms(self, app_label):
+        return True
+
+    def getName(self):
+        return " ".join([self.firstName, self.lastName])
+
+class Complaint(models.Model):
+    title = models.CharField(max_length = 200)
+    complaint = models.TextField()
+    author = models.ForeignKey(User, on_delete = models.CASCADE, related_name = "complaints")
+    status = models.BooleanField(default = False)
+    dateCreated = models.DateTimeField(auto_now_add = True)
+    dateUpdated = models.DateTimeField(auto_now = True)
+    slug = models.SlugField(max_length = 100, unique = True)
+
+    class Meta:
+        db_table = "complaints"
+
+class Tag(models.Model):
+    name = models.CharField(max_length = 200)
+    slug = models.CharField(max_length = 200)
+    dateCreated = models.DateTimeField(auto_now_add = True)
+
+    def save(self, *args, **kwargs):
+        self.slug = slugify(self.name)
+        super(Tag, self).save(*args, **kwargs)
+    
+    class Meta:
+        db_table = "tags"
+
+class ComplaintTag(models.Model):
+    complaint = models.ForeignKey(Complaint, on_delete = models.CASCADE, related_name = "categories")
+    tag = models.ForeignKey(Tag, on_delete = models.CASCADE, related_name = "complaints")
+    dateCreated = models.DateTimeField(auto_now_add = True)
+    
+    class Meta:
+        db_table = "complaint_tags"
+
+class Solution(models.Model):
+    solution = models.TextField()
+    author = models.ForeignKey(User, on_delete = models.SET_NULL, null = True)
+    dateCreated = models.DateTimeField(auto_now_add = True)
+    dateUpdated = models.DateTimeField(auto_now = True)
+    
+    class Meta:
+        db_table = "solutions"

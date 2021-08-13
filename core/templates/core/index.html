@@ -1,0 +1,106 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column pt-3">
+    <button class="btn btn-primary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#complaintForm">New Complaint</button>
+    <div class="collapse" id="complaintForm">
+        <div class="card card-body">
+            <form action="" class="form" method="POST">
+                <div class="mb-3">
+                    <label for="title" class="form-label">Title</label>
+                    <input type="text" name="title" class="form-control" required placeholder="Enter a title">
+                </div>
+                <div class="mb-3">
+                    <label for="complaint" class="form-label">Complaint</label>
+                    <textarea class="form-control" required name="complaint" rows="7" placeholder="Enter you complaint"></textarea>
+                </div>
+                <div class="mb-3">
+                    <label for="tags" class="form-label">Tags</label>
+                    <div id="tags" class="form-control d-flex flex-wrap align-items-center justify-content-center pt-2 pb-3">
+                        <input type="text" onkeydown="tagInputHandler(this);" class="form-control w-100 mt-2" placeholder="Enter a tag">
+                    </div>
+                </div>
+                {% csrf_token %}
+                <input type="submit" value="Submit" class="btn btn-success">
+            </form>
+        </div>
+    </div>
+    <div class="d-flex flex-wrap justify-content-center pt-2 pb-2 complaints-space">
+        <!-- <div class="table-responsive"></div> -->
+        <table class="table table-striped table-hover">
+            <colgroup>
+                <col span="1" style="width: 5%;">
+                <col span="1" style="width: 65%;">
+                <col span="1" style="width: 10%;">
+                <col span="1" style="width: 20%;">
+             </colgroup>
+            <thead class="table-light">
+                <tr>
+                    <th class="text-center align-middle">#</th>
+                    <th class="text-center align-middle">Title</th>
+                    <th class="text-center align-middle">Resolved</th>
+                    <th class="text-center align-middle">Actions</th>
+                </tr>
+                <tbody>
+                    {% for complaint in complaints %}
+                    <tr>
+                        <td class="text-center align-middle">{{ forloop.counter }}</td>
+                        <td class="text-center align-middle">{{ complaint.title }}</td>
+                        <td class="text-center align-middle">
+                            {% if complaint.status %}
+                                <img src="{% static 'images/tick.png' %}" class="table-cell-icon" alt="">
+                            {% else %}
+                                <img src="{% static 'images/cross.png' %}" class="table-cell-icon" alt="">
+                            {% endif %}
+                        </td>
+                        <td class="text-center align-middle">
+                            <div class="btn-group">
+                                <a href="#" class="btn btn-dark">View</a>
+                                <a href="#" class="btn btn-success">Edit</a>
+                                <a href="#" class="btn btn-danger">Delete</a>
+                            </div>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td class="text-center" colspan="4">No Complaints</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </thead>
+        </table>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function removeParent(element) {
+        element.parentElement.remove();
+    }
+
+    function tagInputHandler(element) {
+        if (event.keyCode == 13 && element.value.trim() != "") {
+            const tagHTML = `<div class="btn-group border rounded m-2"><input type="button" class="btn btn-light" value="${element.value.trim()}"><input type="hidden" name="tag" value="${element.value.trim()}"><button type="button" class="btn btn-light" onclick="removeParent(this);">✕</button></div>`;
+            element.insertAdjacentHTML("beforebegin", tagHTML);
+            element.value = "";
+        }
+    }
+
+    document.getElementById("complaintForm").onkeypress = function(event) {
+    let key = event.charCode || event.keyCode || 0;     
+
+    if (key == 13) {
+      event.preventDefault();
+    }
+}
+</script>
+{% endblock %}

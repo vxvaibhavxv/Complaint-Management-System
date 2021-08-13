@@ -1,0 +1,47 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+Register
+{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<div class="d-flex align-items-center justify-content-center h-100">
+    <div class="card mt-4 mb-4 w-100 mxw-500">
+        <div class="card-body">
+            <form action="" class="form mb-3" method="POST">
+                <div class="mb-3">
+                    <label for="firstName" class="form-label">First Name</label>
+                    <input type="text" value="{{ last.firstName }}" name="firstName" placeholder="Enter your first name" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input type="text" value="{{ last.lastName }}" name="lastName" placeholder="Enter your last name" class="form-control">
+                </div>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" value="{{ last.email }}" name="email" placeholder="Enter your email" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="password" class="form-label">Password</label>
+                    <input type="password" name="password" placeholder="Enter your password" class="form-control" required>
+                </div>
+                <div class="mb-3">
+                    <label for="confirmPassword" class="form-label">Confirm Password</label>
+                    <input type="password" name="confirmPassword" placeholder="Re-enter your password" class="form-control" required>
+                </div>
+                {% csrf_token %}
+                <input type="submit" value="Register" class="btn btn-success w-100">
+            </form>
+            <hr>
+            <a href="{% url 'core:login' %}" class="btn btn-primary w-100">Log In</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
