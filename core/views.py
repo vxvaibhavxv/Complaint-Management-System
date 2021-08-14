@@ -15,26 +15,64 @@ def index(request):
     user = request.user
 
     if request.method == "POST":
+        last = {}
+        error = False
         title = request.POST.get("title")
         complaint = request.POST.get("complaint")
         tags = request.POST.getlist("tag")
-        complaint = Complaint.objects.create(
-            title = title,
-            complaint = complaint,
-            author = user
-        )
-        
-        for tag in tags:
-            tagObject = Tag.objects.create(name = tag)
-            ComplaintTag.objects.create(
+
+        if isValidInput(title):
+            title = cleanInput(title)
+            last["title"] = title
+        else:
+            messages.error(request, "Invalid Title")
+            error = True
+
+        if isValidInput(complaint):
+            complaint = cleanInput(complaint)
+            last["complaint"] = complaint
+        else:
+            messages.error(request, "Invalid Complaint")
+            error = True
+
+        last["tag"] = []
+        tagError = False
+
+        for i in range(len(tags)):
+            if isValidInput(tags[i]):
+                tags[i] = cleanInput(tags[i])
+                last["tag"].append(tags[i])
+            else:                
+                tagError = True
+                error = True
+
+        if tagError:
+            print("Hello")
+            messages.error(request, "Invalid Tag")
+
+        if not error:
+            complaint = Complaint.objects.create(
+                title = title,
                 complaint = complaint,
-                tag = tagObject
+                author = user
             )
+            
+            for tag in tags:
+                tagObject = Tag.objects.create(name = tag)
+                ComplaintTag.objects.create(
+                    complaint = complaint,
+                    tag = tagObject
+                )
         
-        messages.success(request, "Complaint added successfully!")
+            messages.success(request, "Complaint added successfully!")
+        else:
+            return render(request, "core/index.html", {
+                "complaints": Complaint.objects.filter(author = user),
+                "last": last
+            })
 
     return render(request, "core/index.html", {
-        "complaints": Complaint.objects.filter(author = user)
+        "complaints": Complaint.objects.filter(author = user),
     })
 
 @logoutRequired
@@ -122,4 +160,69 @@ def loginView(request):
 def logoutView(request):
     logout(request)
     messages.success(request, f"You have been logged out successfully!")
+    return HttpResponseRedirect("/")
+
+@loginRequired
+def viewComplaint(request, slug):
+    complaint = Complaint.objects.filter(slug = slug)
+
+    if complaint.exists():
+        return render(request, "core/complaint.html", {
+            "complaint": complaint.first()
+        })
+    else:
+        messages.error(request, "Complaint doesn't exists.")
+        return HttpResponseRedirect("/")
+
+@loginRequired
+@onlyUser
+def editComplaint(request, slug):
+    complaint = Complaint.objects.filter(
+        author = request.user,
+        slug = slug
+    )
+
+    if not complaint.exists():
+        messages.error(request, "Complaint doesn't exists.")
+        return HttpResponseRedirect("/")
+
+    complaint = complaint.first()
+
+    if request.method == "POST":
+        title = request.POST.get("title")
+        complaint = request.POST.get("complaint")
+        tags = request.POST.getlist("tag")
+        complaint.title = title
+        complaint.complaint = complaint
+        complaint.save()
+        ComplaintTag.objects.filter(complaint = complaint).delete()
+
+        for tag in tags:
+            tagObject = Tag.objects.create(name = tag)
+            ComplaintTag.objects.create(
+                complaint = complaint,
+                tag = tagObject
+            )
+
+        messages.success(request, "Complaint saved successfully!")
+
+    return render(request, "edit-complaint.html", {
+        "complaint": complaint
+    })
+        
+
+@loginRequired
+@onlyUser
+def deleteComplaint(request, slug):
+    complaint = Complaint.objects.filter(
+        author = request.user,
+        slug = slug
+    )
+
+    if complaint.exists():
+        complaint.first().delete()
+        messages.success(request, "Complaint deleted successfully!")
+    else:
+        messages.error(request, "Complaint doesn't exists or belongs to you.")
+    
     return HttpResponseRedirect("/")

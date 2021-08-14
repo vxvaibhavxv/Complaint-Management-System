@@ -1,3 +1,4 @@
+import random
 from django.db import models
 from django.utils.text import slugify
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
@@ -23,7 +24,7 @@ class UserManager(BaseUserManager):
             password = password
         )
 
-        user.superuser = True
+        user.isSuperuser = True
         user.save(using = self._db)
         return user
 
@@ -50,6 +51,14 @@ class User(AbstractBaseUser):
         return self.isSuperuser
 
     @property
+    def is_superuser(self):
+        return self.isSuperuser
+
+    @property
+    def is_admin(self):
+        return self.isAdmin
+
+    @property
     def isAuthenticated(self):
         return self.is_authenticated
 
@@ -69,14 +78,24 @@ class User(AbstractBaseUser):
     def getName(self):
         return " ".join([self.firstName, self.lastName])
 
+def generateComplaintSlug():
+    length = 100
+    domain = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+    while True:
+        slug = "".join(random.choices(domain, k = length))
+
+        if not Complaint.objects.filter(slug = slug).exists():
+            return slug
+
 class Complaint(models.Model):
-    title = models.CharField(max_length = 200)
+    title = models.CharField(max_length = 500)
     complaint = models.TextField()
     author = models.ForeignKey(User, on_delete = models.CASCADE, related_name = "complaints")
     status = models.BooleanField(default = False)
     dateCreated = models.DateTimeField(auto_now_add = True)
     dateUpdated = models.DateTimeField(auto_now = True)
-    slug = models.SlugField(max_length = 100, unique = True)
+    slug = models.SlugField(max_length = 100, unique = True, default = generateComplaintSlug)
 
     class Meta:
         db_table = "complaints"
@@ -94,12 +113,14 @@ class Tag(models.Model):
         db_table = "tags"
 
 class ComplaintTag(models.Model):
-    complaint = models.ForeignKey(Complaint, on_delete = models.CASCADE, related_name = "categories")
+    complaint = models.ForeignKey(Complaint, on_delete = models.CASCADE, related_name = "tags")
     tag = models.ForeignKey(Tag, on_delete = models.CASCADE, related_name = "complaints")
     dateCreated = models.DateTimeField(auto_now_add = True)
     
     class Meta:
         db_table = "complaint_tags"
+        verbose_name = "ComplaintTag"
+        verbose_name_plural = "ComplaintTags"
 
 class Solution(models.Model):
     solution = models.TextField()
