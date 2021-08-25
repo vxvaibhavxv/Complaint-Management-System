@@ -23,3 +23,36 @@ def onlyUser(function):
         else:
             return HttpResponseRedirect("/")
     return wrapper
+
+def onlyAdmin(function):
+    def wrapper(request, *args, **kwargs):
+        if request.user.isAdmin:
+            return function(request, *args, **kwargs)
+        else:
+            return HttpResponseRedirect("/")
+    return wrapper
+
+def onlyManager(function):
+    def wrapper(request, *args, **kwargs):
+        if request.user.isManager:
+            return function(request, *args, **kwargs)
+        else:
+            return HttpResponseRedirect("/")
+
+    return wrapper
+
+def onlySuperuser(function):
+    def wrapper(request, *args, **kwargs):
+        if request.user.isSuperuser:
+            return function(request, *args, **kwargs)
+        else:
+            return HttpResponseRedirect("/")
+    return wrapper
+
+def onlyPostRequest(function):
+    def wrapper(request, *args, **kwargs):
+        if request.method == "POST":
+            return function(request, *args, **kwargs)
+        else:
+            return HttpResponseRedirect("/")
+    return wrapper

@@ -1,0 +1,101 @@
+:root {
+    --successColor: #2ECC71;
+    --dangerColor: #FF0000;
+    --warningColor: #F1C40F;
+    --navigationLogoSize: 40px;
+}
+
+* {
+    margin: 0px;
+    padding: 0px;
+    box-sizing: border-box;
+    border: none;
+    outline: none;
+}
+
+.icon {
+    height: 15px;
+}
+
+.icon-large {
+    height: 20px;
+}
+
+.field-error {
+    border-color: #FF0000 !important;
+    box-shadow: 0px 0px 0px 3px rgba(255, 0, 0, 0.35) !important;
+}
+
+.field-success {
+    border-color: #00FF00 !important;
+    box-shadow: 0px 0px 0px 3px rgba(0, 255, 0, 0.35) !important;
+}
+
+.messages {
+    display: flex;
+    flex-direction: column-reverse;
+    position: fixed;
+    top: calc(var(--navigationLogoSize) + 15px);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 100000;
+    max-height: 100vh;
+}
+
+.message {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    background-color: #FFFFFF;
+    border: 1px solid #EEEEEE;
+    margin-top: 15px;
+    padding: 10px;
+    width: 500px;
+    transform: translateX(2500px);
+    box-shadow: 0px 0px 15px 5px #EEEEEE;
+    animation: toastMessageAnimation 1s 1 forwards;
+}
+
+.message img {
+    height: 10px;
+    margin: 5px 0px 0px 15px;
+    cursor: pointer;
+}
+
+.message-description {
+    font-family: "Open Sans";
+    font-size: 16px;
+    margin-bottom: 0px;
+}
+
+@keyframes toastMessageAnimation {
+    0% {
+        transform: translateY(-2500px);
+        opacity: 0%;
+    }
+
+    100% {
+        transform: translateY(0px);
+        opacity: 100%;
+    }
+}
+
+.success {
+    border-left: 7px solid #2ECC71;
+}
+
+.error {
+    border-left: 7px solid #E74C3C;
+}
+
+.warning {
+    border-left: 7px solid #F4D03F;
+}
+
+.info {
+    border-left: 7px solid #2E86C1;
+}
+
+.hide {
+    display: none !important;
+}

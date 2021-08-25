@@ -13,7 +13,7 @@ User Register
     <div class="card mt-4 mb-4 w-100 mxw-500">
         <div class="card-body">
             <form action="" class="form mb-3" method="POST">
-                <h4>User Registration</h4>
+                <h4>Admin Registration</h4>
                 <hr>
                 <div class="mb-3">
                     <label for="firstName" class="form-label">First Name</label>
@@ -37,9 +37,7 @@ User Register
                 </div>
                 {% csrf_token %}
                 <input type="submit" value="Register" class="btn btn-success w-100">
-            </form>
-            <hr>
-            <a href="{% url 'core:login' %}" class="btn btn-primary w-100">Log In</a>
+            </form>            
         </div>
     </div>
 </div>

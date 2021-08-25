@@ -1,0 +1,65 @@
+{% extends "core/base.html" %}
+{% load static %}
+
+{% block title %}
+Home
+{% endblock %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+<div class="d-flex flex-column pt-3">
+    <div class="card card-body">
+        <form id="complaintForm" action="" class="form" method="POST">
+            <div class="mb-3">
+                <label for="title" class="form-label">Title</label>
+                <input type="text" name="title" class="form-control" value="{{ complaint.title }}" required placeholder="Enter a title">
+            </div>
+            <div class="mb-3">
+                <label for="complaint" class="form-label">Complaint</label>
+                <textarea class="form-control" required name="complaint" rows="7" placeholder="Enter you complaint">{{ complaint.complaint }}</textarea>
+            </div>
+            <div class="mb-3">
+                <label for="tags" class="form-label">Tags</label>
+                <div id="tags" class="form-control d-flex flex-wrap align-items-center justify-content-center pt-2 pb-3">
+                    {% for tag in complaint.tags.all %}
+                        <div class="btn-group border rounded m-2">
+                            <input type="button" class="btn btn-light" value="{{ tag.tag.name }}">
+                            <input type="hidden" name="tag" value="{{ tag.tag.name }}">
+                            <button type="button" class="btn btn-light" onclick="removeParent(this);">✕</button>
+                        </div>
+                    {% endfor %}
+                    <input type="text" onkeydown="tagInputHandler(this);" class="form-control w-100 mt-2" placeholder="Enter a tag">
+                </div>
+            </div>
+            {% csrf_token %}
+            <input type="submit" value="Submit" class="btn btn-success">
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    function removeParent(element) {
+        element.parentElement.remove();
+    }
+
+    function tagInputHandler(element) {
+        if (event.keyCode == 13 && element.value.trim() != "") {
+            const tagHTML = `<div class="btn-group border rounded m-2"><input type="button" class="btn btn-light" value="${element.value.trim()}"><input type="hidden" name="tag" value="${element.value.trim()}"><button type="button" class="btn btn-light" onclick="removeParent(this);">✕</button></div>`;
+            element.insertAdjacentHTML("beforebegin", tagHTML);
+            element.value = "";
+        }
+    }
+
+    document.getElementById("complaintForm").onkeypress = function(event) {
+    let key = event.charCode || event.keyCode || 0;     
+
+    if (key == 13) {
+      event.preventDefault();
+    }
+}
+</script>
+{% endblock %}

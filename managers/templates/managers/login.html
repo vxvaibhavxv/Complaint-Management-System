@@ -2,7 +2,7 @@
 {% load static %}
 
 {% block title %}
-User Login
+Manager Login
 {% endblock %}
 
 {% block head %}
@@ -13,7 +13,7 @@ User Login
     <div class="card mt-4 mb-4 w-100 mxw-500">
         <div class="card-body">
             <form action="" class="form mb-3" method="POST">
-                <h4>User Login</h4>
+                <h4>Manager Login</h4>
                 <hr>
                 <div class="mb-3">
                     <label for="email" class="form-label">Email</label>
@@ -28,8 +28,7 @@ User Login
             </form>
             <a href="" class="text-decoration-none">Forgot password?</a>
             <hr>
-            <a href="{% url 'core:register' %}" class="btn btn-primary w-100">Register</a>
-            <a href="{% url 'managers:managerLogin' %}" class="btn btn-danger mt-3 w-100">Login as Manager</a>
+            <a href="{% url 'core:login' %}" class="btn btn-danger mt-3 w-100">Login as User</a>
         </div>
     </div>
 </div>

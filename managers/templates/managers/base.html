@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="en">
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.12.9/umd/popper.min.js" integrity=" sha384-ApNbgh9B+Y1QKtv3Rn7W3mgPxhU9K/ScQsAP7hUibX39j7fakFPskvXusvfa0b4Q" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/js/bootstrap.min.js" integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl" crossorigin="anonymous"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:ital,wght@0,300;0,400;0,600;0,700;0,800;1,300;1,400;1,600;1,700;1,800&display=swap" rel="stylesheet">
+    <title>Manager Dashboard</title>
+    <link rel="stylesheet" href="{% static 'managers/css/style.css' %}">
+    {% block head %}
+    {% endblock %}
+</head>
+<body>
+    <div class="messages" id="messages">
+        {% if messages %}
+            {% for message in messages %}
+                {% if "success" in message.tags %}
+                <div class="message success" style="animation-delay: calc(0.025 * {{ forloop.counter }}s);">
+                {% elif "error" in message.tags %}
+                <div class="message error" style="animation-delay: calc(0.025 * {{ forloop.counter }}s);">
+                {% elif "warning" in message.tags %}
+                <div class="message warning" style="animation-delay: calc(0.025 * {{ forloop.counter }}s);">
+                {% else %}
+                <div class="message info" style="animation-delay: calc(0.025 * {{ forloop.counter }}s);">
+                {% endif %}
+                <p class="message-description">{{ message }}</p>            
+                <img src="{% static 'Images/Cross.png' %}" alt="" onclick="this.parentElement.remove();">
+            </div>
+            {% endfor %}
+        {% endif %}
+        </div>
+    {% block content %}
+    {% endblock %}
+</body>
+{% block scripts %}
+{% endblock %}
+</html>

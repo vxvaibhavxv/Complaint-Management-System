@@ -24,9 +24,21 @@ class UserManager(BaseUserManager):
             password = password
         )
 
+        user.isAdmin = True
         user.isSuperuser = True
         user.save(using = self._db)
         return user
+
+def generateUserSlug():
+    length = 100
+    domain = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
+
+    while True:
+        slug = "".join(random.choices(domain, k = length))
+
+        if not User.objects.filter(slug = slug).exists():
+            return slug
+
 
 class User(AbstractBaseUser):
     email = models.EmailField(max_length = 200, unique = True)
@@ -37,6 +49,8 @@ class User(AbstractBaseUser):
     active = models.BooleanField(default = True)
     isSuperuser = models.BooleanField(default = False)
     isAdmin = models.BooleanField(default = False)
+    isManager = models.BooleanField(default = False)
+    slug = models.SlugField(max_length = 100, unique = True, default = generateUserSlug)
 
     USERNAME_FIELD = "email"
     REQUIRED_FIELDS = ["firstName"]
@@ -122,11 +136,12 @@ class ComplaintTag(models.Model):
         verbose_name = "ComplaintTag"
         verbose_name_plural = "ComplaintTags"
 
-class Solution(models.Model):
-    solution = models.TextField()
+class Reply(models.Model):
+    reply = models.TextField()
+    complaint = models.ForeignKey(Complaint, on_delete = models.CASCADE, related_name = "replies")
     author = models.ForeignKey(User, on_delete = models.SET_NULL, null = True)
     dateCreated = models.DateTimeField(auto_now_add = True)
     dateUpdated = models.DateTimeField(auto_now = True)
     
     class Meta:
-        db_table = "solutions"
+        db_table = "replies"

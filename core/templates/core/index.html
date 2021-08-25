@@ -10,42 +10,44 @@ Home
 
 {% block content %}
 <div class="d-flex flex-column pt-3">
-    <div class="d-block">
-        <button class="btn btn-primary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#complaintForm">New Complaint</button>
-    </div>
-    {% if last and last|length > 0 %}
-        <div class="collapse mb-3 show" id="complaintForm">
-    {% else %}
-        <div class="collapse mb-3" id="complaintForm">
-    {% endif %}
-        <div class="card card-body">
-            <form action="" class="form" method="POST">
-                <div class="mb-3">
-                    <label for="title" class="form-label">Title</label>
-                    <input type="text" name="title" class="form-control" value="{{ last.title }}" required placeholder="Enter a title">
-                </div>
-                <div class="mb-3">
-                    <label for="complaint" class="form-label">Complaint</label>
-                    <textarea class="form-control" required name="complaint" rows="7" placeholder="Enter you complaint">{{ last.complaint }}</textarea>
-                </div>
-                <div class="mb-3">
-                    <label for="tags" class="form-label">Tags</label>
-                    <div id="tags" class="form-control d-flex flex-wrap align-items-center justify-content-center pt-2 pb-3">
-                        {% for tag in last.tag %}
-                            <div class="btn-group border rounded m-2">
-                                <input type="button" class="btn btn-light" value="{{ tag }}">
-                                <input type="hidden" name="tag" value="{{ tag }}">
-                                <button type="button" class="btn btn-light" onclick="removeParent(this);">✕</button>
-                            </div>
-                        {% endfor %}
-                        <input type="text" onkeydown="tagInputHandler(this);" class="form-control w-100 mt-2" placeholder="Enter a tag">
-                    </div>
-                </div>
-                {% csrf_token %}
-                <input type="submit" value="Submit" class="btn btn-success">
-            </form>
+    {% if not request.user.isAdmin %}
+        <div class="d-block">
+            <button class="btn btn-primary mb-3" type="button" data-bs-toggle="collapse" data-bs-target="#complaintForm">New Complaint</button>
         </div>
-    </div>
+        {% if last and last|length > 0 %}
+            <div class="collapse mb-3 show" id="complaintForm">
+        {% else %}
+            <div class="collapse mb-3" id="complaintForm">
+        {% endif %}
+            <div class="card card-body">
+                <form action="" class="form" method="POST">
+                    <div class="mb-3">
+                        <label for="title" class="form-label">Title</label>
+                        <input type="text" name="title" class="form-control" value="{{ last.title }}" required placeholder="Enter a title">
+                    </div>
+                    <div class="mb-3">
+                        <label for="complaint" class="form-label">Complaint</label>
+                        <textarea class="form-control" required name="complaint" rows="7" placeholder="Enter you complaint">{{ last.complaint }}</textarea>
+                    </div>
+                    <div class="mb-3">
+                        <label for="tags" class="form-label">Tags</label>
+                        <div id="tags" class="form-control d-flex flex-wrap align-items-center justify-content-center pt-2 pb-3">
+                            {% for tag in last.tag %}
+                                <div class="btn-group border rounded m-2">
+                                    <input type="button" class="btn btn-light" value="{{ tag }}">
+                                    <input type="hidden" name="tag" value="{{ tag }}">
+                                    <button type="button" class="btn btn-light" onclick="removeParent(this);">✕</button>
+                                </div>
+                            {% endfor %}
+                            <input type="text" onkeydown="tagInputHandler(this);" class="form-control w-100 mt-2" placeholder="Enter a tag">
+                        </div>
+                    </div>
+                    {% csrf_token %}
+                    <input type="submit" value="Submit" class="btn btn-success">
+                </form>
+            </div>
+        </div>
+    {% endif %}
     <div class="d-flex flex-wrap justify-content-center pt-2 pb-2 complaints-space">
         <div class="table-responsive w-100 me-2 ms-2">
             <table class="table">
@@ -58,7 +60,7 @@ Home
                 <thead class="table-light">
                     <tr>
                         <th class="text-center align-middle">#</th>
-                        <th class="text-center align-middle">Title</th>
+                        <th class="align-middle">Title</th>
                         <th class="text-center align-middle">Resolved</th>
                         <th class="text-center align-middle">Actions</th>
                     </tr>
@@ -76,9 +78,11 @@ Home
                             </td>
                             <td class="text-center align-middle">
                                 <div class="btn-group">
-                                    <a href="#" class="w-100 btn btn-dark">View</a>
-                                    <a href="#" class="w-100 btn btn-success">Edit</a>
-                                    <a href="{% url 'core:deleteComplaint' complaint.slug %}" class="w-100 btn btn-dark">Delete</a>
+                                    <a href="{% url 'core:viewComplaint' complaint.slug %}" class="w-100 btn btn-dark">View</a>
+                                    {% if not request.user.isAdmin %}
+                                        <a href="{% url 'core:editComplaint' complaint.slug %}" class="w-100 btn btn-success">Edit</a>
+                                        <a href="{% url 'core:deleteComplaint' complaint.slug %}" class="w-100 btn btn-dark">Delete</a>
+                                    {% endif %}
                                     <button type="button" class="w-100 btn btn-success" data-bs-toggle="collapse" data-bs-target="#complaint{{ forloop.counter }}">Tags</button>
                                 </div>
                             </td>

@@ -1,0 +1,192 @@
+{% extends 'managers/base.html'%}
+{% load static %}
+
+{% block head %}
+{% endblock %}
+
+{% block content %}
+{% include 'managers/navigation-bar.html' %}  
+
+{% if not manager.company %}
+    <div class="container mt-5 mb-5">
+        <div class="card">
+            <div class="card-header">
+                <h1>Register a New Company</h1>
+                <p>Fill the form below to create a new company and start managing it!</p>
+            </div>
+            <div class="card-body">
+                <form action="{% url 'managers:managerDashboard' %}" method="POST" enctype="multipart/form-data">
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="">Company Name</label>
+                            <input type="text" name="companyName" class="form-control" placeholder="Enter the company name" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="">Website Link</label>
+                            <input type="url" name="website" class="form-control" placeholder="Enter the company website">
+                        </div>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="">Contact Email</label>
+                            <input type="email" name="email" class="form-control" placeholder="Enter your company's contact email" required>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="logo">Upload Logo</label>
+                            <input type="file" class="form-control" id="logo" name="logo" accept=".png, .jpg, .jpeg">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Contact Details</label>
+                        <textarea name="contactDetails" class="form-control" placeholder="Enter the contact details"></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Company Description</label>
+                        <textarea name="description" class="form-control" placeholder="Enter the company description" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Contact Registration Number</label>
+                        <input type="text" name="registrationNumber" class="form-control" placeholder="Enter the company registration number" required>
+                    </div>
+                    <div class="form-row">
+                        <div class="form-group col-md-6">
+                            <label for="">Company Size</label> 
+                            <select class="form-control" name="companySize" required>
+                                {% for value, text in companySizes %}
+                                    <option value="{{ value }}">{{ text }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                        <div class="form-group col-md-6">
+                            <label for="">Company Industry</label> 
+                            <select class="form-control" name="industry" required>
+                                {% for value, text in industries %}
+                                    <option value="{{ value }}">{{ text }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="">Company Benefits</label>
+                        <textarea name="benefits" class="form-control" placeholder="Enter the company benefits"></textarea>
+                    </div>
+                    {% csrf_token %}
+                    <input type="submit" value="Register Company" class="btn btn-success mt-2">
+                </form>
+            </div>
+        </div>
+    </div>
+{% else %}
+    <div class="container mt-5 mb-5">
+        <div class="btn-group">
+            <a href="{% url 'managers:verifyCompany' %}" class="btn btn-success">Verify Company</a>
+            <button class="btn btn-danger" type="button" data-toggle="collapse" data-target="#companyDetails" aria-expanded="false" aria-controls="companyDetails">View Company Details</button>
+            <a href="{% url 'managers:editCompany' %}" class="btn btn-warning">Edit Company Details</a>
+            <a href="{% url 'managers:newUser' %}" class="btn btn-info">New User</a>
+            {% comment 'Roles' %}
+                <a href="{% url 'managers:createRole' %}" class="btn btn-success">Create Role</a>
+            {% endcomment %}
+            <button class="btn btn-dark" type="button" data-toggle="collapse" data-target="#companyRoles" aria-expanded="false" aria-controls="companyRoles">View Company Roles</button>
+        </div>
+        <div class="collapse mt-3" id="companyRoles">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title">Company Roles</h5>
+                    <p class="card-text">Following are the company roles. Feel free to edit or remove them.</p>
+                    <div>
+                        {% for role in roles %}
+                        <div class="btn-group btn-group-sm">
+                            <p class="d-block mb-0 btn btn-danger">{{ role.name }}</p>
+                            {% comment 'Roles' %}
+                                <a href="{% url 'managers:editRole' role.slug %}" class="d-flex align-items-center justify-content-center btn btn-dark"><img src="{% static 'Images/edit.png' %}" class="icon" alt=""></a>
+                            {% endcomment %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="collapse mt-3" id="companyDetails">
+            <div class="card">
+                <div class="card-body d-flex flex-row">
+                    <div class="">
+                        <h5 class="card-title d-flex align-items-center">{{ company.name }}{% if company.verified %}<span class="ml-2"><img src="{% static 'Images/blue-tick.png' %}" class="icon-large" alt=""></span>{% endif %}</h5>
+                        <p class="card-text">{{ company.description|linebreaks }}</p>
+                    </div>
+                    {% if company.logo %}
+                        <div class="d-flex flex-column">
+                            <img src="{{ company.logo.url }}" style="width: 150px; height: 150px;" class="rounded mb-2 ml-3" alt="Company Logo">
+                        </div>
+                    {% else %}
+                        <img src="https://via.placeholder.com/512" style="width: 150px; height: 150px;" class="img-thumbnail ml-3" alt="Company Logo">
+                    {% endif %}
+                </div>
+                <ul class="list-group list-group-flush">
+                    <li class="list-group-item">Size - {{ company.get_companySize_display }}</li>
+                    <li class="list-group-item">Industry - {{ company.get_industry_display }}</li>
+                    <li class="list-group-item">Website - <a href="{{ company.websiteLink }}" target="_blank">Click Here</a></li>
+                    <li class="list-group-item">Contact Email - {{ company.contactEmail }}</li>
+                </ul>
+                {% if company.benefits or company.contact %}
+                <div class="card-body">
+                    {% if company.benefits %}
+                        <h2>Benefits</h2>
+                        <p>{{ company.benefits|linebreaks }}</p>
+                    {% endif %}
+                    {% if company.contact %}
+                        <h2>Contact Details</h2>
+                        <p>{{ company.contact|linebreaks }}</p>
+                    {% endif %}
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        <div class="card mt-3">
+            <div class="card-header">
+                <h1>Recruiters</h1>
+                <p>List of all the recruiters associated with the company.</p>
+            </div>
+        </div>
+        <table class="table table-striped">
+            <thead class="thead-dark">
+                <tr>
+                    <th class="text-center" scope="col">S. No</th>
+                    <th class="text-center" scope="col">Full Name</th>
+                    <th class="text-center" scope="col">Username</th>
+                    <th class="text-center" scope="col">Email</th>
+                    <th class="text-center" scope="col">Roles</th>
+                    <th class="text-center" scope="col">Subscription</th>
+                    <th class="text-center" scope="col">Joined On</th>
+                    <th class="text-center" scope="col">Actions</th>
+                </tr>
+            </thead>
+            <tbody class="border">
+                {% for r in recruiters %}
+                    <tr>
+                        <td class="text-center align-middle">{{ forloop.counter }}</td>
+                        <td class="text-center align-middle">{{ r.account.getName }}</td>
+                        <td class="text-center align-middle">{{ r.account.username }}</td>
+                        <td class="text-center align-middle">{{ r.account.email }}</td>
+                        <td class="text-center align-middle">
+                            {% for role in r.account.roles.all %}
+                                <span class="badge badge-info">{{ role.role.name }}</span>
+                            {% endfor %}
+                        </td>
+                        <td class="text-center align-middle">{{ r.subscriptionType }}</td>
+                        <td class="text-center align-middle">25/12/2021</td>
+                        <td class="text-center align-middle">
+                            <div class="btn-group">
+                                <a href="{% url 'managers:editRecruiter' r.account.username %}" class="btn btn-dark">Edit</a>
+                                <button class="btn btn-danger"><form action="{% url 'managers:removeUser' r.account.username %}" method="POST">{% csrf_token %}<input type="submit" class="bg-transparent text-white" style="cursor: pointer;" value="Remove"></form></button>
+                            </div>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endif %}
+{% endblock %}
+
+{% block scripts %}
+{% endblock %}
