@@ -7,7 +7,7 @@ from .models import Complaint, Tag, ComplaintTag, Reply
 from django.contrib import messages
 from django.http import HttpResponseRedirect
 from common.utils import isValidInput, cleanInput
-from common.decorators import loginRequired, logoutRequired, onlyAdmin, onlyUser, onlyPostRequest
+from common.decorators import loginRequired, logoutRequired, onlyAdmin, onlyUser, onlyPostRequest, notManager
 from django.contrib.auth import login, logout, authenticate
 from django.contrib.auth import get_user_model
 from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
@@ -15,6 +15,7 @@ from django.core.paginator import Paginator, EmptyPage, PageNotAnInteger
 User = get_user_model()
 
 @loginRequired
+@notManager
 def index(request):
     user = request.user
 
@@ -51,8 +52,8 @@ def index(request):
 
             for i in range(len(tags)):
                 if isValidInput(tags[i]):
-                    tags[i] = cleanInput(tags[i]).lower()
-                    last["tag"].append(tags[i]).lower()
+                    tags[i] = cleanInput(tags[i].lower())
+                    last["tag"].append(tags[i].lower())
                 else:                
                     tagError = True
                     error = True
@@ -167,6 +168,7 @@ def loginView(request):
     return render(request, "core/login.html", {})
 
 @loginRequired
+@notManager
 def logoutView(request):
     logout(request)
     messages.success(request, f"You have been logged out successfully!")
@@ -195,7 +197,7 @@ def complaints(request):
             complaints = Complaint.objects.filter(status = False)    
 
     page = request.GET.get("page", 1)
-    paginator = Paginator(complaints, 10)
+    paginator = Paginator(complaints, 20)
 
     try:
         complaints = paginator.page(page)
@@ -239,6 +241,7 @@ def unresolved(request, slug):
         return HttpResponseRedirect("/")
 
 @loginRequired
+@notManager
 def viewComplaint(request, slug):
     user = request.user
     complaint = Complaint.objects.filter(slug = slug)

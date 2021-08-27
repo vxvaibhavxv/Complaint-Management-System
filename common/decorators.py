@@ -41,6 +41,15 @@ def onlyManager(function):
 
     return wrapper
 
+def notManager(function):
+    def wrapper(request, *args, **kwargs):
+        if not request.user.isManager:
+            return function(request, *args, **kwargs)
+        else:
+            return HttpResponseRedirect("/managers/dashboard/")
+
+    return wrapper
+
 def onlySuperuser(function):
     def wrapper(request, *args, **kwargs):
         if request.user.isSuperuser:

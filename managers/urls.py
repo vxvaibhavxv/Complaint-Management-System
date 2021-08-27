@@ -7,6 +7,6 @@ urlpatterns = [
     path("logout/", logoutView, name = "managerLogout"),
     path("new-admin/", newAdmin, name = "newAdmin"),
     path("edit-admin/<slug:slug>/", editAdmin, name = "editAdmin"),
-    path("remove-user/<slug:slug>/", removeAdmin, name = "removeAdmin"),
+    path("remove-user/", removeAdmin, name = "removeAdmin"),
     path("dashboard/", dashboard, name = "managerDashboard"),
 ]

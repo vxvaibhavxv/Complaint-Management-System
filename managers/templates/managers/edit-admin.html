@@ -1,81 +1,39 @@
-{% extends 'managers/base.html' %}
-{% load static%}
+{% extends "managers/base.html" %}
+{% load static %}
+
+{% block title %}
+User Register
+{% endblock %}
 
 {% block head %}
-<script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/js/bootstrap-multiselect.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-multiselect/0.9.13/css/bootstrap-multiselect.css">
-<style>
-    .multiselect-container li a label {
-        padding: 3px 10px !important;
-    }
-</style>
 {% endblock %}
 
 {% block content %}
-{% include 'managers/navigation-bar.html' %}  
-
-<div class="container mt-5 mb-5">
-    <div class="card">
-        <div class="card-header d-flex w-100 flex-row align-items-center justify-content-space-between">
-            <div class="w-100">
-                <h1>Edit Recruiter</h1>
-                <p>Change the required fields and save to update the details.</p>
-            </div>
-        </div>
+<div class="d-flex align-items-center justify-content-center h-100">
+    <div class="card mt-4 mb-4 w-100 mxw-500">
         <div class="card-body">
-            <form action="{% url 'managers:editRecruiter' recruiter.account.username  %}" method="POST" id="recrutier-form">
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="">First Name</label>
-                        <input type="text" name="firstName" value="{{ recruiter.account.firstName }}" class="form-control" oninvalid="invalidInput(this);" oninput="onInput(this);" placeholder="Enter the first name" required>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="">Last Name</label>
-                        <input type="text" name="lastName" value="{{ recruiter.account.lastName }}" class="form-control" placeholder="Enter the last name">
-                    </div>
+            <form action="" class="form mb-3" method="POST">
+                <h4>Edit Admin</h4>
+                <hr>
+                <div class="mb-3">
+                    <label for="firstName" class="form-label">First Name</label>
+                    <input type="text" value="{{ user.firstName }}" name="firstName" placeholder="Enter your first name" class="form-control" required>
                 </div>
-                <div class="form-row">
-                    <div class="form-group col-md-6">
-                        <label for="">Email</label>
-                        <input type="email" name="email" class="form-control" value="{{ recruiter.account.email }}" readonly>
-                    </div>
-                    <div class="form-group col-md-6">
-                        <label for="">Username</label>
-                        <input type="text" name="username" class="form-control" value="{{ recruiter.account.username }}"readonly>
-                    </div>
+                <div class="mb-3">
+                    <label for="lastName" class="form-label">Last Name</label>
+                    <input type="text" value="{{ user.lastName }}" name="lastName" placeholder="Enter your last name" class="form-control">
                 </div>
-                <div class="form-group">
-                    <label for="">Roles</label>
-                    <br>
-                    <select name="role" multiple="multiple" id="select-roles">
-                        {% for role in roles %}
-                            {% if role.slug in accountRoles %}
-                                <option value="{{ role.slug }}" selected>{{ role.name }}</option>
-                            {% else %}
-                                <option value="{{ role.slug }}">{{ role.name }}</option>
-                            {% endif %}
-                        {% endfor %}
-                    </select>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" value="{{ user.email }}" disabled name="email" placeholder="Enter your email" class="form-control" required>
                 </div>
                 {% csrf_token %}
-                <input type="submit" value="Save Changes" class="btn btn-warning mt-2">
-            </form>
+                <input type="submit" value="Save Changes" class="btn btn-success w-100">
+            </form>            
         </div>
     </div>
 </div>
 {% endblock %}
 
 {% block scripts %}
-<script type="text/javascript">
-    $(document).ready(function() {
-        $('#select-roles').multiselect({
-            checkboxName: function(option) {
-                return "role";
-            },
-            includeSelectAllOption: true,
-            selectAllText: 'Assign All'
-        });
-    });
-    document.getElementById("select-roles").querySelector
-</script>
 {% endblock %}

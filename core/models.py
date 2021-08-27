@@ -92,6 +92,14 @@ class User(AbstractBaseUser):
     def getName(self):
         return " ".join([self.firstName, self.lastName])
 
+class ManagerAdmin(models.Model):
+    manager = models.ForeignKey(User, on_delete = models.CASCADE, related_name = "admins")
+    admin = models.ForeignKey(User, on_delete = models.CASCADE, related_name = "manager")
+
+    class Meta:
+        verbose_name = "ManagerAdmin"
+        verbose_name_plural = "ManagerAdmins"
+
 def generateComplaintSlug():
     length = 100
     domain = "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789"
@@ -139,7 +147,7 @@ class ComplaintTag(models.Model):
 class Reply(models.Model):
     reply = models.TextField()
     complaint = models.ForeignKey(Complaint, on_delete = models.CASCADE, related_name = "replies")
-    author = models.ForeignKey(User, on_delete = models.SET_NULL, null = True)
+    author = models.ForeignKey(User, on_delete = models.SET_NULL, null = True, related_name = "replies")
     dateCreated = models.DateTimeField(auto_now_add = True)
     dateUpdated = models.DateTimeField(auto_now = True)
     

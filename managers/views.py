@@ -5,6 +5,7 @@ from django.shortcuts import render, HttpResponseRedirect
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth import authenticate, login, logout
 from common.decorators import logoutRequired, onlyManager
+from core.models import ManagerAdmin
 
 User = get_user_model()
 
@@ -40,11 +41,24 @@ def logoutView(request):
 @onlyManager
 def dashboard(request):
 	manager = request.user
-	admins = User.objects.filter(isAdmin = True)
+	admins = [admin.admin for admin in manager.admins.all().order_by("admin__firstName")]
+	counts = []
+
+	for admin in admins:
+		complaints = list(set([a.complaint for a in admin.replies.all()]))
+		resolved, resolving = 0, 0
+
+		for c in complaints:
+			if c.status:
+				resolved += 1
+			else:
+				resolving += 1
+
+		counts.append({"resolved" : resolved, "resolving" : resolving})
 
 	return render(request, "managers/manager-dashboard.html", {
 		"manager": manager,
-		"admins": admins,
+		"admins": zip(admins, counts)
 	})
 
 @login_required(login_url = "/managers/login/")
@@ -71,6 +85,14 @@ def newAdmin(request):
 
 		if isValidInput(email):
 			email = cleanInput(email)
+
+			if User.objects.filter(email = email).exists():
+				messages.error(request, "Email already exists.")	
+				last["email"] = email
+				return render(request, "managers/new-admin.html", {
+					"last": last
+				})
+			
 			last["email"] = email
 		else:
 			messages.error(request, "Invalid Email")
@@ -100,27 +122,40 @@ def newAdmin(request):
 			)
 			user.set_password(password)
 			user.save()
+			manager = request.user
+			ManagerAdmin.objects.create(admin = user, manager = manager)
 			messages.success(request, f"New admin has been created successfully!")
-			return HttpResponseRedirect("/manager/dashboard")
+			return HttpResponseRedirect("/managers/dashboard")
 
 		return render(request, "managers/new-admin.html", {
 			"last": last
 		})
 
-	return render(request, "managers/new-user.html", {})
+	return render(request, "managers/new-admin.html", {})
 
 @login_required(login_url = "/managers/login/")
 @onlyManager
 def removeAdmin(request):
 	if request.method == "POST":
-		email = request.POST.get("email")
-		user = User.objects.filter(email = email)
+		slug = request.POST.get("slug")
+
+		if slug == None:
+			messages.error(request, "Invalid URL.")
+			return HttpResponseRedirect("/managers/dashboard/")
+
+		manager = request.user
+		user = User.objects.filter(slug = slug)
 
 		if not user.exists():
 			messages.error(request, "No such admin exists.")
-			return HttpResponseRedirect("/managers/dashboard/")	
+			return HttpResponseRedirect("/managers/dashboard/")
 
 		user = user.first()
+
+		if not ManagerAdmin.objects.filter(admin = user, manager = manager).exists():
+			messages.error(request, "Admin was not created by you.")
+			return HttpResponseRedirect("/managers/dashboard/")
+
 		user.delete()
 		messages.success(request, "Admin removed successfully!")	
 		
@@ -143,6 +178,7 @@ def editAdmin(request, slug):
 		if isValidInput(firstName):
 			firstName = cleanInput(firstName)
 		else:
+			firstName = user.firstName
 			messages.error(request, "Invalid First Name")
 
 		lastName = request.POST.get("lastName").strip()
@@ -151,6 +187,6 @@ def editAdmin(request, slug):
 		user.save()
 		messages.success(request, "Changes saved successfully!")
 
-	return render(request, "managers/edit-recruiter.html", {
-		"admin": user,
+	return render(request, "managers/edit-admin.html", {
+		"user": user,
 	})
