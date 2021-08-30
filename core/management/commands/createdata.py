@@ -22,7 +22,7 @@ class Command(BaseCommand):
             )
 
             for _ in range(random.randint(2, 30)):
-                tagObject = Tag.objects.create(name = fake.word().lower())
+                tagObject, created = Tag.objects.get_or_create(name = fake.word().lower())
                 ComplaintTag.objects.create(
                     complaint = complaint,
                     tag = tagObject
