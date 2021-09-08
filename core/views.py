@@ -147,6 +147,30 @@ def register(request):
 
     return render(request, "core/register.html", {})
 
+@loginRequired
+def editAccount(request):
+    user = request.user
+
+    if request.method == "POST":
+        firstName = request.POST.get("firstName")
+        lastName = request.POST.get("lastName", "")
+
+        if isValidInput(firstName):
+            firstName = cleanInput(firstName)
+        else:
+            messages.error(request, "Invalid First Name")
+            firstName = user.firstName
+
+        lastName = cleanInput(lastName)
+        user.firstName = firstName
+        user.lastName = lastName
+        user.save()
+        messages.success(request, f"Changes saved successfully!")
+
+    return render(request, "core/edit-account.html", {
+        "user": user
+    })
+
 @logoutRequired
 def loginView(request):
     if request.method == "POST":

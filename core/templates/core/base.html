@@ -25,6 +25,7 @@
                         <a class="text-decoration-none active ms-3" href="{% url 'core:complaints' %}">Complaints</a>
                     {% endif %}
                     {% if request.user.is_authenticated %}
+                        <a class="text-decoration-none active ms-3" href="{% url 'core:editAccount' %}">Account</a>
                         <a class="text-decoration-none active ms-3 btn-sm btn btn-danger" href="{% url 'core:logout' %}">Log Out</a>
                     {% else %}
                     <div class="btn-group ms-3">

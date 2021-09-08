@@ -39,7 +39,6 @@ def generateUserSlug():
         if not User.objects.filter(slug = slug).exists():
             return slug
 
-
 class User(AbstractBaseUser):
     email = models.EmailField(max_length = 200, unique = True)
     firstName = models.CharField(max_length = 100)
@@ -58,7 +57,7 @@ class User(AbstractBaseUser):
     objects = UserManager()
 
     class Meta:
-        db_table = "users"
+        db_table = "User"
 
     @property
     def is_staff(self):

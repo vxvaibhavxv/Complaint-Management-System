@@ -118,7 +118,8 @@ def newAdmin(request):
 			user = User(
 				email = email,
 				firstName = firstName,
-				lastName = lastName
+				lastName = lastName,
+				isAdmin = True,
 			)
 			user.set_password(password)
 			user.save()
@@ -174,6 +175,7 @@ def editAdmin(request, slug):
 
 	if request.method == "POST":
 		firstName = request.POST.get("firstName").strip()
+		email = request.POST.get("email").strip()
 		
 		if isValidInput(firstName):
 			firstName = cleanInput(firstName)
@@ -181,7 +183,18 @@ def editAdmin(request, slug):
 			firstName = user.firstName
 			messages.error(request, "Invalid First Name")
 
+		if isValidInput(email):
+			email = cleanInput(email)
+
+			if User.objects.filter(email = email).exists():
+				messages.error(request, "Email already exists.")
+				email = user.email
+		else:
+			messages.error(request, "Invalid Email")
+			email = user.email
+
 		lastName = request.POST.get("lastName").strip()
+		user.email = email
 		user.firstName = firstName
 		user.lastName = lastName
 		user.save()

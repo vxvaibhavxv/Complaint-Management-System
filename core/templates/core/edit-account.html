@@ -1,8 +1,8 @@
-{% extends "managers/base.html" %}
+{% extends "core/base.html" %}
 {% load static %}
 
 {% block title %}
-User Register
+Edit Username
 {% endblock %}
 
 {% block head %}
@@ -13,7 +13,12 @@ User Register
     <div class="card mt-4 mb-4 w-100 mxw-500">
         <div class="card-body">
             <form action="" class="form mb-3" method="POST">
-                <h4>Edit Admin</h4>
+                <h4>Edit User</h4>
+                <hr>
+                <div class="mb-3">
+                    <label for="email" class="form-label">Email</label>
+                    <input type="email" value="{{ user.email }}" name="email" placeholder="Enter your email" class="form-control" required disabled>
+                </div>
                 <hr>
                 <div class="mb-3">
                     <label for="firstName" class="form-label">First Name</label>
@@ -22,14 +27,10 @@ User Register
                 <div class="mb-3">
                     <label for="lastName" class="form-label">Last Name</label>
                     <input type="text" value="{{ user.lastName }}" name="lastName" placeholder="Enter your last name" class="form-control">
-                </div>
-                <div class="mb-3">
-                    <label for="email" class="form-label">Email</label>
-                    <input type="email" value="{{ user.email }}" name="email" placeholder="Enter your email" class="form-control" required>
-                </div>
+                </div>                
                 {% csrf_token %}
                 <input type="submit" value="Save Changes" class="btn btn-success w-100">
-            </form>            
+            </form>
         </div>
     </div>
 </div>
